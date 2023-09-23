@@ -4,6 +4,7 @@ import (
 	"context"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/Brainsoft-Raxat/aiesec-hack/internal/app/config"
 	"github.com/Brainsoft-Raxat/aiesec-hack/internal/models"
@@ -37,27 +38,18 @@ func (r *postgres) DoSomething(ctx context.Context) {
 
 func (r *postgres) CreateEvent(ctx context.Context, event models.Event) (eventID uuid.UUID, err error) {
 	query := `
-        INSERT INTO events (title, description, category, author, datetime, location, city)
-        VALUES ($1, $2, $3, $4, $5, $6, $7)
+        INSERT INTO events (title, description, banner_url, category, author, datetime, address, location, city)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
         RETURNING id
     `
 	err = r.db.QueryRow(ctx, query,
-		event.Title, event.Description, event.Category, event.Author, event.Datetime, event.Location, event.City).
+		event.Title, event.Description, event.BannerURL, event.Category, event.Author, event.Datetime, event.Address, event.Location, event.City).
 		Scan(&eventID)
 	if err != nil {
 		return eventID, apperror.NewErrorInfo(ctx, errcodes.CreateEventError, err.Error())
 	}
 
 	return eventID, nil
-}
-
-func (r *postgres) GetEventByID(ctx context.Context, id int) (models.Event, error) {
-	query := `SELECT id, title, description, category, author, datetime, location, city FROM events WHERE id = $1`
-	var event models.Event
-	err := r.db.QueryRow(ctx, query, id).Scan(
-		&event.ID, &event.Title, &event.Description, &event.Category, &event.Author, &event.Datetime, &event.Location, &event.City,
-	)
-	return event, err
 }
 
 func (r *postgres) GetEventsFiltered(ctx context.Context, city string, categories []string) ([]models.Event, error) {
@@ -85,8 +77,17 @@ func (r *postgres) GetEventsFiltered(ctx context.Context, city string, categorie
 		whereClause = strings.TrimSuffix(whereClause, ",") + ") "
 	}
 
+	// Add the condition to filter events for today
+	if whereClause != "" {
+		whereClause += "AND "
+	} else {
+		whereClause += "WHERE "
+	}
+	whereClause += "datetime::date = $"+strconv.Itoa(len(args)+1)+"::date"
+	args = append(args, time.Now())
+
 	query := `
-        SELECT id, title, description, category, author, datetime, location, city
+        SELECT id, title, description, banner_url, category, author, datetime, address, location, city
         FROM events
     ` + whereClause + `
         ORDER BY datetime ASC
@@ -102,8 +103,8 @@ func (r *postgres) GetEventsFiltered(ctx context.Context, city string, categorie
 	for rows.Next() {
 		var event models.Event
 		err := rows.Scan(
-			&event.ID, &event.Title, &event.Description, &event.Category, &event.Author,
-			&event.Datetime, &event.Location, &event.City,
+			&event.ID, &event.Title, &event.Description, &event.BannerURL, &event.Category, &event.Author,
+			&event.Datetime, &event.Address, &event.Location, &event.City,
 		)
 		if err != nil {
 			return nil, err
@@ -117,14 +118,15 @@ func (r *postgres) GetEventsFiltered(ctx context.Context, city string, categorie
 	return events, nil
 }
 
+
 func (r *postgres) UpdateEvent(ctx context.Context, event models.Event) error {
 	query := `
         UPDATE events
-        SET title = $1, description = $2, category = $3, author = $4, datetime = $5, location = $6, city = $7
+        SET title = $1, description = $2, category = $3, author = $4, datetime = $5, location = $6, city = $7, banner_url = $8, address = $9  
         WHERE id = $8
     `
 	_, err := r.db.Exec(ctx, query,
-		event.Title, event.Description, event.Category, event.Author, event.Datetime, event.Location, event.City, event.ID)
+		event.Title, event.Description, event.Category, event.Author, event.Datetime, event.Location, event.City, event.ID, event.BannerURL, event.Address)
 	return err
 }
 

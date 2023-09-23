@@ -10,9 +10,11 @@ import (
 type CreateEventRequest struct {
 	Title       string    `json:"title"`
 	Description string    `json:"description"`
+	BannerURL   string    `json:"banner_url"`
 	Category    string    `json:"category"`
 	Author      string    `json:"author"`
 	Datetime    time.Time `json:"datetime"`
+	Address     string    `json:"address"`
 	Location    string    `json:"location"`
 	City        string    `json:"city"`
 }
@@ -22,14 +24,14 @@ type CreateEventResponse struct {
 }
 
 type UpdateEventRequest struct {
-	EventID     int    `json:"event_id,omitempty"`
-	Title       string `json:"title"`
-	Description string `json:"description"`
-	Category    string `json:"category"`
-	Author      string `json:"author"`
-	Datetime    string `json:"datetime"`
-	Location    string `json:"location"`
-	City        string `json:"city"`
+	EventID     uuid.UUID `json:"event_id,omitempty"`
+	Title       string    `json:"title"`
+	Description string    `json:"description"`
+	Category    string    `json:"category"`
+	Author      string    `json:"author"`
+	Datetime    string    `json:"datetime"`
+	Location    string    `json:"location"`
+	City        string    `json:"city"`
 }
 
 type UpdateEventResponse struct {
@@ -38,7 +40,7 @@ type UpdateEventResponse struct {
 }
 
 type GetEventRequest struct {
-	EventID int `json:"event_id"`
+	EventID uuid.UUID `json:"event_id"`
 }
 
 type GetEventResponse struct {
@@ -56,7 +58,7 @@ type GetEventsFilteredResponse struct {
 }
 
 type DeleteEventRequest struct {
-	EventID int `json:"event_id"`
+	EventID uuid.UUID `json:"event_id"`
 }
 type DeleteEventResponse struct {
 	Success bool   `json:"success"`

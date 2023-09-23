@@ -2,10 +2,17 @@ package service
 
 import (
 	"context"
+	"fmt"
+	"math"
+	"sort"
+	"strconv"
+	"strings"
 
 	"github.com/Brainsoft-Raxat/aiesec-hack/internal/models"
 	"github.com/Brainsoft-Raxat/aiesec-hack/internal/repository"
+	"github.com/Brainsoft-Raxat/aiesec-hack/pkg/apperror"
 	"github.com/Brainsoft-Raxat/aiesec-hack/pkg/data"
+	"github.com/Brainsoft-Raxat/aiesec-hack/pkg/errcodes"
 	"github.com/google/uuid"
 )
 
@@ -18,7 +25,7 @@ func (s *eventService) DeleteEvent(ctx context.Context, request data.DeleteEvent
 	panic("unimplemented")
 }
 
-// GetEvent implements EventService.
+// GetEvent implements EventService.festivali
 func (s *eventService) GetEvent(ctx context.Context, request data.GetEventRequest) (data.GetEventResponse, error) {
 	panic("unimplemented")
 }
@@ -32,12 +39,48 @@ func (s *eventService) GetEventsFiltered(ctx context.Context, request data.GetEv
 
 	events, err := s.repo.Postgres.GetEventsFiltered(ctx, jerry.City, request.Categories)
 	if err != nil {
-		return
+		return resp, apperror.NewErrorInfo(ctx, errcodes.InternalServerError, err.Error())
 	}
 
-	resp.Events = events
-
 	// TODO: Do filtering by jerries location
+
+	for i, event := range events {
+		coords := strings.Split(event.Location, " ")
+
+		dst := models.Coordinates{}
+
+		dst.Latitude, err = strconv.ParseFloat(coords[0], 64)
+		if err != nil {
+			return resp, apperror.NewErrorInfo(ctx, errcodes.InternalServerError, "Unable to parse dst.Latitude")
+		}
+
+		dst.Longitude, err = strconv.ParseFloat(coords[1], 64)
+		if err != nil {
+			return resp, apperror.NewErrorInfo(ctx, errcodes.InternalServerError, "Unable to parse dst.Longitude")
+		}
+
+		events[i].Distance = Haversine(models.Coordinates{
+			Latitude:  jerry.Latitude,
+			Longitude: jerry.Longitude,
+		},
+			dst,
+		)
+
+		events[i].DistanceKM = fmt.Sprintf("%.1f km", events[i].Distance)
+
+		events[i].Latitude = dst.Latitude
+		events[i].Longitude = dst.Longitude
+	}
+
+	sort.Slice(events, func(i, j int) bool {
+		scoreI := score(events[i])
+		scoreJ := score(events[j])
+
+		// Sort in descending order, higher score first.
+		return scoreI > scoreJ
+	})
+
+	resp.Events = events
 
 	return
 }
@@ -53,9 +96,11 @@ func (s *eventService) CreateEvent(ctx context.Context, request data.CreateEvent
 		ID:          uuid.New(),
 		Title:       request.Title,
 		Description: request.Description,
+		BannerURL:   request.BannerURL,
 		Category:    request.Category,
 		Author:      request.Author,
 		Datetime:    request.Datetime,
+		Address:     request.Address,
 		Location:    request.Location,
 		City:        request.City,
 	})
@@ -66,8 +111,42 @@ func (s *eventService) CreateEvent(ctx context.Context, request data.CreateEvent
 	return
 }
 
+func Haversine(src, dst models.Coordinates) float64 {
+	const EarthRadius = 6371.0
+
+	lat1 := degToRad(src.Latitude)
+	lon1 := degToRad(src.Longitude)
+	lat2 := degToRad(dst.Latitude)
+	lon2 := degToRad(dst.Longitude)
+
+	// Differences in coordinates
+	dLat := lat2 - lat1
+	dLon := lon2 - lon1
+
+	// Haversine formula
+	a := math.Pow(math.Sin(dLat/2), 2) + math.Cos(lat1)*math.Cos(lat2)*math.Pow(math.Sin(dLon/2), 2)
+	c := 2 * math.Atan2(math.Sqrt(a), math.Sqrt(1-a))
+	distance := EarthRadius * c
+
+	return distance
+}
+
+// Convert degrees to radians
+func degToRad(deg float64) float64 {
+	return deg * (math.Pi / 180)
+}
+
 func NewEventService(repo *repository.Repository) EventService {
 	return &eventService{
 		repo: repo,
 	}
+}
+
+func score(event models.Event) float64 {
+	// You can adjust these weight values as needed to prioritize distance and datetime.
+	distanceWeight := 0.6
+	datetimeWeight := 0.4
+
+	// Calculate the score based on the weighted values.
+	return (event.Distance * distanceWeight) + (float64(event.Datetime.Unix()) * datetimeWeight)
 }

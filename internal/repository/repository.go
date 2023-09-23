@@ -18,7 +18,7 @@ type Postgres interface {
 	DoSomething(ctx context.Context)
 	GetUserCredsByLogin(login string) (int64, string, error)
 	CreateEvent(ctx context.Context, event models.Event) (uuid.UUID, error)
-	GetEventByID(ctx context.Context, id int) (models.Event, error)
+	// GetEventByID(ctx context.Context, id int) (models.Event, error)
 	GetEventsFiltered(ctx context.Context, city string, categories []string) ([]models.Event, error)
 	UpdateEvent(ctx context.Context, event models.Event) error
 	DeleteEvent(ctx context.Context, id int) error
