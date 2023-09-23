@@ -83,7 +83,7 @@ func (r *postgres) GetEventsFiltered(ctx context.Context, city string, categorie
 	} else {
 		whereClause += "WHERE "
 	}
-	whereClause += "datetime::date = $"+strconv.Itoa(len(args)+1)+"::date"
+	whereClause += "datetime::date >= $"+strconv.Itoa(len(args)+1)+"::date"
 	args = append(args, time.Now())
 
 	query := `

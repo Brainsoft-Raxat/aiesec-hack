@@ -34,9 +34,8 @@ func NewJerryStore() JerryStore {
 		jerries: []models.Jerry{
 			{ID: "jerry1", Latitude: 43.261067, Longitude: 76.930945, City: "Almaty"},
 			{ID: "jerry2", Latitude: 43.244243, Longitude: 76.959526, City: "Almaty"},
-			{ID: "jerry3", Latitude: 34.0522, Longitude: -118.2437, City: "Kokshetau"},
-			{ID: "jerry4", Latitude: 41.8781, Longitude: -87.6298, City: "Shymkent"},
-			{ID: "jerry5", Latitude: 51.5074, Longitude: -0.1278, City: "Aktau"},
+			{ID: "jerry3", Latitude: 51.129181, Longitude: 71.430724, City: "Astana"},
+			{ID: "jerry4", Latitude: 51.089835, Longitude: 71.415226, City: "Astana"},
 		},
 	}
 }
