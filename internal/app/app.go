@@ -39,6 +39,13 @@ func Run(filenames ...string) {
 		},
 	}))
 
+	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+		AllowOrigins:     []string{"*"}, // Allow all origins
+		AllowMethods:     []string{echo.GET, echo.PUT, echo.POST, echo.DELETE}, // Allow all methods
+		AllowHeaders:     []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept}, // Allow specific headers
+		AllowCredentials: true, // Allow credentials (e.g., cookies)
+	}))
+
 	ctx := context.Background()
 
 	db, err := connection.DialPostgres(ctx, cfg.Postgres)
