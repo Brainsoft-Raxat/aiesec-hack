@@ -22,10 +22,16 @@ type EventService interface {
 	GetEventsFiltered(ctx context.Context, request data.GetEventsFilteredRequest) (data.GetEventsFilteredResponse, error)
 	DeleteEvent(ctx context.Context, request data.DeleteEventRequest) (data.DeleteEventResponse, error)
 }
+
+type ShootService interface {
+	SendShoot(ctx context.Context, request data.SendShootRequest) (data.SendShootResponse, error)
+}
+
 type Service struct {
 	SomeService
 	AuthService
 	EventService
+	ShootService
 }
 
 func New(repos *repository.Repository) *Service {
@@ -33,5 +39,6 @@ func New(repos *repository.Repository) *Service {
 		SomeService:  NewSomeService(repos),
 		AuthService:  NewAuthService(repos),
 		EventService: NewEventService(repos),
+		ShootService: NewShootService(repos),
 	}
 }

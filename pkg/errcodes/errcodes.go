@@ -12,4 +12,6 @@ var (
 	JerryNotFound       = apperror.NewErrorCode(2, http.StatusNotFound, "Jerry not found")
 	CreateEventError    = apperror.NewErrorCode(3, http.StatusInternalServerError, "Unable to create event")
 	InternalServerError = apperror.NewErrorCode(4, http.StatusInternalServerError, "Internal Server Error")
+	InvalidFile         = apperror.NewErrorCode(5, http.StatusBadRequest, "Invalid File")
+	ValidationError     = apperror.NewErrorCode(6, http.StatusBadRequest, "Validation error")
 )

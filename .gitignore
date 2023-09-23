@@ -1,3 +1,5 @@
+local.env
 .vscode
 .idea
 .git
+__debug_bin*

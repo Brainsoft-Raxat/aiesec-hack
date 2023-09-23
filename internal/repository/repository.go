@@ -12,6 +12,7 @@ import (
 type Repository struct {
 	Postgres
 	JerryStore
+	SMTP
 }
 
 type Postgres interface {
@@ -28,9 +29,14 @@ type JerryStore interface {
 	GetJerryByID(ctx context.Context, id string) (models.Jerry, error)
 }
 
+type SMTP interface {
+	SendEmailWithAttachment(ctx context.Context, fileData []byte, fileName, toEmail string) error
+}
+
 func New(conn conn.Conn, cfg *config.Config) *Repository {
 	return &Repository{
 		Postgres:   NewPostgresRepository(conn.DB, cfg.Postgres),
 		JerryStore: NewJerryStore(),
+		SMTP:       NewSMTPRepository(cfg.SMTP),
 	}
 }

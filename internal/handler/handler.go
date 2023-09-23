@@ -31,6 +31,10 @@ func (h *handler) Register(e *echo.Echo) {
 			event.POST("/create", h.CreateEvent)
 			event.GET("/filter", h.GetEventsFiltered)
 		}
+		photoShoot := api.Group("/photo-shoot")
+		{
+			photoShoot.POST("/send", h.SendShoot)
+		}
 		
 	}
 	auth := e.Group("/auth")
