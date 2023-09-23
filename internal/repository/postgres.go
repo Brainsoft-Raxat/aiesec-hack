@@ -118,7 +118,6 @@ func (r *postgres) GetEventsFiltered(ctx context.Context, city string, categorie
 	return events, nil
 }
 
-
 func (r *postgres) UpdateEvent(ctx context.Context, event models.Event) error {
 	query := `
         UPDATE events

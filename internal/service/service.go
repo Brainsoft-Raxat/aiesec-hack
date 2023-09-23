@@ -27,18 +27,25 @@ type ShootService interface {
 	SendShoot(ctx context.Context, request data.SendShootRequest) (data.SendShootResponse, error)
 }
 
+type PromotionService interface {
+	GetPromotionsFiltered(ctx context.Context, request data.GetPromotionsFilteredRequest) (resp data.GetPromotionsFilteredResponse, err error)
+	CreatePromotion(ctx context.Context, request data.CreatePromotionRequest) (resp data.CreatePromotionResponse, err error)
+}
+
 type Service struct {
 	SomeService
 	AuthService
 	EventService
 	ShootService
+	PromotionService
 }
 
 func New(repos *repository.Repository) *Service {
 	return &Service{
-		SomeService:  NewSomeService(repos),
-		AuthService:  NewAuthService(repos),
-		EventService: NewEventService(repos),
-		ShootService: NewShootService(repos),
+		SomeService:      NewSomeService(repos),
+		AuthService:      NewAuthService(repos),
+		EventService:     NewEventService(repos),
+		ShootService:     NewShootService(repos),
+		PromotionService: NewPromotionService(repos),
 	}
 }

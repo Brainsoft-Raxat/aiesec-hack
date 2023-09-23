@@ -23,6 +23,8 @@ type Postgres interface {
 	GetEventsFiltered(ctx context.Context, city string, categories []string) ([]models.Event, error)
 	UpdateEvent(ctx context.Context, event models.Event) error
 	DeleteEvent(ctx context.Context, id int) error
+	CreatePromotion(ctx context.Context, promotion models.Promotion) (uuid.UUID, error)
+	GetPromotionsFiltered(ctx context.Context, city string) ([]models.Promotion, error)
 }
 
 type JerryStore interface {
