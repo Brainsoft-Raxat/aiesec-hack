@@ -11,6 +11,7 @@ import (
 	"github.com/Brainsoft-Raxat/aiesec-hack/internal/repository/connection"
 	_ "github.com/Brainsoft-Raxat/aiesec-hack/internal/repository/connection"
 	"github.com/Brainsoft-Raxat/aiesec-hack/internal/service"
+	"github.com/Brainsoft-Raxat/aiesec-hack/internal/worker"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/sirupsen/logrus"
@@ -40,10 +41,10 @@ func Run(filenames ...string) {
 	}))
 
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins:     []string{"*"}, // Allow all origins
-		AllowMethods:     []string{echo.GET, echo.PUT, echo.POST, echo.DELETE}, // Allow all methods
+		AllowOrigins:     []string{"*"},                                                          // Allow all origins
+		AllowMethods:     []string{echo.GET, echo.PUT, echo.POST, echo.DELETE},                   // Allow all methods
 		AllowHeaders:     []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept}, // Allow specific headers
-		AllowCredentials: true, // Allow credentials (e.g., cookies)
+		AllowCredentials: true,                                                                   // Allow credentials (e.g., cookies)
 	}))
 
 	ctx := context.Background()
@@ -53,12 +54,21 @@ func Run(filenames ...string) {
 		panic(fmt.Sprintf("unable to connect to postgres: %v", err))
 	}
 
+	redisClient := connection.DialRedis(ctx, cfg.Redis)
+	if redisClient == nil {
+		panic(fmt.Sprintf("unable to connect to redis: %v", err))
+	}
+
 	repos := repository.New(conn.Conn{
-		DB: db,
+		DB:          db,
+		RedisClient: redisClient,
 	}, cfg)
 	services := service.New(repos)
 	handlers := handler.New(services)
+
 	handlers.Register(e)
+
+	go func() { worker.Start(ctx, worker.New(services)) }()
 
 	e.Logger.Fatal(e.Start(":" + cfg.Port))
 }

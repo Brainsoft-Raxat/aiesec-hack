@@ -39,6 +39,15 @@ type UpdateEventResponse struct {
 	Message string `json:"message"`
 }
 
+type UpdateEventCountRequest struct {
+	EventID uuid.UUID `json:"id"`
+}
+
+type UpdateEventCountResponse struct {
+	Success bool   `json:"success"`
+	Message string `json:"message"`
+}
+
 type GetEventRequest struct {
 	EventID uuid.UUID `json:"event_id"`
 }
@@ -62,5 +71,13 @@ type DeleteEventRequest struct {
 }
 type DeleteEventResponse struct {
 	Success bool   `json:"success"`
+	Message string `json:"message"`
+}
+
+type GiveSuggestionRequest struct {
+	JerryID string `json:"jerry_id"`
+}
+
+type GiveSuggestionResponse struct {
 	Message string `json:"message"`
 }

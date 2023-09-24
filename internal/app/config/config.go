@@ -9,7 +9,9 @@ import (
 type Config struct {
 	Timeout  int `env:"TIMEOUT" default:"60"`
 	Postgres Postgres
+	Redis    Redis
 	SMTP     SMTP
+	GPT      GPT
 	Port     string `env:"PORT" default:"8080"`
 }
 
@@ -25,6 +27,16 @@ type SMTP struct {
 	SMTPPort  string `env:"SMTP_PORT"`
 	SMTPUser  string `env:"SMTP_USER"`
 	SMTPPass  string `env:"SMTP_PASS"`
+}
+
+type Redis struct {
+	Addr string `env:"REDIS_ADDR"`
+	Pass string `env:"REDIS_PASS"`
+	DB   int    `env:"REDIS_DB"`
+}
+
+type GPT struct {
+	Token string `env:"OPENAI_TOKEN"`
 }
 
 func New(filenames ...string) (*Config, error) {

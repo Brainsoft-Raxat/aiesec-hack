@@ -30,6 +30,8 @@ func (h *handler) Register(e *echo.Echo) {
 		{
 			event.POST("/create", h.CreateEvent)
 			event.GET("/filter", h.GetEventsFiltered)
+			event.PUT("/increment", h.UpdateEventCount)
+			event.GET("/suggest", h.GetSuggestion)
 		}
 		photoShoot := api.Group("/photo-shoot")
 		{
@@ -41,10 +43,6 @@ func (h *handler) Register(e *echo.Echo) {
 			promotion.GET("/filter", h.GetPromotionsFiltered)
 		}
 
-	}
-	auth := e.Group("/auth")
-	{
-		auth.POST("/sign-in", h.SignIn)
 	}
 }
 

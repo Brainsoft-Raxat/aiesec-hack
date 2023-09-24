@@ -22,4 +22,6 @@ type Event struct {
 
 	DistanceKM string  `json:"distance"`
 	Distance   float64 `json:"-"`
+
+	Count int `json:"count"`
 }

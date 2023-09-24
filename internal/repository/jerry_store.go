@@ -14,6 +14,11 @@ type jerryStore struct {
 	jerries []models.Jerry
 }
 
+// GetAllJerries implements JerryStore.
+func (s *jerryStore) GetAllJerries(ctx context.Context) ([]models.Jerry, error) {
+	return s.jerries, nil
+}
+
 // GetJerryByID implements JerryStore.
 func (s *jerryStore) GetJerryByID(ctx context.Context, id string) (models.Jerry, error) {
 	s.mu.Lock()

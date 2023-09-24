@@ -83,11 +83,11 @@ func (r *postgres) GetEventsFiltered(ctx context.Context, city string, categorie
 	} else {
 		whereClause += "WHERE "
 	}
-	whereClause += "datetime::date >= $"+strconv.Itoa(len(args)+1)+"::date"
+	whereClause += "datetime::date >= $" + strconv.Itoa(len(args)+1) + "::date"
 	args = append(args, time.Now())
 
 	query := `
-        SELECT id, title, description, banner_url, category, author, datetime, address, location, city
+        SELECT id, title, description, banner_url, category, author, datetime, address, location, city, count
         FROM events
     ` + whereClause + `
         ORDER BY datetime ASC
@@ -104,7 +104,7 @@ func (r *postgres) GetEventsFiltered(ctx context.Context, city string, categorie
 		var event models.Event
 		err := rows.Scan(
 			&event.ID, &event.Title, &event.Description, &event.BannerURL, &event.Category, &event.Author,
-			&event.Datetime, &event.Address, &event.Location, &event.City,
+			&event.Datetime, &event.Address, &event.Location, &event.City, &event.Count,
 		)
 		if err != nil {
 			return nil, err
@@ -126,6 +126,16 @@ func (r *postgres) UpdateEvent(ctx context.Context, event models.Event) error {
     `
 	_, err := r.db.Exec(ctx, query,
 		event.Title, event.Description, event.Category, event.Author, event.Datetime, event.Location, event.City, event.ID, event.BannerURL, event.Address)
+	return err
+}
+
+func (r *postgres) UpdateEventCount(ctx context.Context, id uuid.UUID) error {
+	query := `
+        UPDATE events
+        SET count = count + 1
+        WHERE id = $1
+    `
+	_, err := r.db.Exec(ctx, query, id)
 	return err
 }
 

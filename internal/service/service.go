@@ -21,6 +21,11 @@ type EventService interface {
 	GetEvent(ctx context.Context, request data.GetEventRequest) (data.GetEventResponse, error)
 	GetEventsFiltered(ctx context.Context, request data.GetEventsFilteredRequest) (data.GetEventsFilteredResponse, error)
 	DeleteEvent(ctx context.Context, request data.DeleteEventRequest) (data.DeleteEventResponse, error)
+	UpdateEventCount(ctx context.Context, request data.UpdateEventCountRequest) (resp data.UpdateEventCountResponse, err error)
+
+	// Worker methods
+	FetchAndCache(ctx context.Context) error
+	GiveSuggestion(ctx context.Context, request data.GiveSuggestionRequest) (resp data.GiveSuggestionResponse, err error)
 }
 
 type ShootService interface {

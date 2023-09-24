@@ -11,6 +11,7 @@ CREATE TABLE events (
     address TEXT
     location TEXT,
     city TEXT,
+    count INTEGER DEFAULT 0,
 );
 
 CREATE TABLE promotion (
